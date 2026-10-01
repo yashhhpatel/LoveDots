@@ -33,6 +33,9 @@ class Save extends ChangeNotifier {
 
   /// Levels completed since the last interstitial ad.
   int levelsSinceAd = 0;
+
+  /// Purchase tokens of coin packs already credited (never credit twice).
+  List<String> creditedPurchases = [];
   int launches = 0;
 
   /// Bonus-skin trials: skin id -> expiry epoch ms.
@@ -64,6 +67,7 @@ class Save extends ChangeNotifier {
     adsFreeLifetime = _p.getBool('adsFreeLifetime') ?? false;
     adsFreeMonthly = _p.getBool('adsFreeMonthly') ?? false;
     levelsSinceAd = _p.getInt('levelsSinceAd') ?? 0;
+    creditedPurchases = _p.getStringList('credited') ?? [];
     launches = (_p.getInt('launches') ?? 0) + 1;
     _p.setInt('launches', launches);
     final t = _p.getString('trials');
@@ -94,6 +98,7 @@ class Save extends ChangeNotifier {
     _p.setBool('adsFreeLifetime', adsFreeLifetime);
     _p.setBool('adsFreeMonthly', adsFreeMonthly);
     _p.setInt('levelsSinceAd', levelsSinceAd);
+    _p.setStringList('credited', creditedPurchases);
     _p.setString('trials', jsonEncode(trials));
   }
 

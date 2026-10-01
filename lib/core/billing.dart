@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_android/billing_client_wrappers.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 
 import 'ads.dart';
@@ -11,10 +12,19 @@ import 'l10n.dart';
 /// Play Console product IDs. Create these before release:
 /// * [monthly]: auto-renewing subscription, 1 month, ₹299
 /// * [lifetime]: one-time (non-consumable) in-app product, ₹2,999
+/// * [coinPacks]: consumable in-app products (can be bought again)
 class ProductIds {
   static const monthly = 'ads_free_monthly';
   static const lifetime = 'ads_free_lifetime';
-  static const all = {monthly, lifetime};
+
+  /// Coin pack product ID -> coins it gives (packs from the reference game).
+  static const coinPacks = {
+    'coins_900': 900,
+    'coins_5000': 5000,
+    'coins_11000': 11000,
+    'coins_24000': 24000,
+  };
+  static final all = {monthly, lifetime, ...coinPacks.keys};
 }
 
 enum BuyState { idle, buying, pending }
@@ -26,7 +36,7 @@ class BillingEvent {
   const BillingEvent(this.message, {this.success = false});
 }
 
-/// Remove-ads purchases through Google Play Billing.
+/// Remove-ads and coin purchases through Google Play Billing.
 ///
 /// Entitlements are re-read from Play on every launch and resume, so an
 /// expired or refunded monthly subscription switches ads back on, and a
@@ -47,9 +57,14 @@ class Billing extends ChangeNotifier {
   Stream<BillingEvent> get events => _events.stream;
 
   /// Shown when Play hasn't returned a localized price yet.
+  /// Real prices come from Play Console in the player's currency.
   static const fallbackPrices = {
     ProductIds.monthly: '₹299',
     ProductIds.lifetime: '₹2,999',
+    'coins_900': '₹89',
+    'coins_5000': '₹449',
+    'coins_11000': '₹899',
+    'coins_24000': '₹1,799',
   };
 
   String priceOf(String id) => products[id]?.price ?? fallbackPrices[id]!;
@@ -93,6 +108,12 @@ class Billing extends ChangeNotifier {
     var lifetime = false, monthly = false;
     for (final p in res.pastPurchases) {
       if (p.status != PurchaseStatus.purchased && p.status != PurchaseStatus.restored) {
+        continue;
+      }
+      if (ProductIds.coinPacks.containsKey(p.productID)) {
+        // A coin pack that was paid for but not consumed (app closed
+        // mid-purchase): credit it now.
+        await _creditCoins(p);
         continue;
       }
       if (p.productID == ProductIds.lifetime) lifetime = true;
@@ -141,6 +162,54 @@ class Billing extends ChangeNotifier {
     }
   }
 
+  /// Starts the Play purchase sheet for a coin pack.
+  Future<void> buyCoins(String id) async {
+    if (!available) await refresh();
+    final product = products[id];
+    if (!available || product == null) {
+      _events.add(BillingEvent(tr('bUnavailable')));
+      return;
+    }
+    if (state[id] == BuyState.pending) {
+      _events.add(BillingEvent(tr('bStillPending')));
+      return;
+    }
+    state[id] = BuyState.buying;
+    notifyListeners();
+    Ads.I.skipNextResume();
+    try {
+      // Consumed by hand after the coins are credited, so an app crash in
+      // between can't lose them.
+      await _iap.buyConsumable(purchaseParam: PurchaseParam(productDetails: product), autoConsume: false);
+    } catch (e) {
+      debugPrint('Billing: buyCoins failed $e');
+      state[id] = BuyState.idle;
+      notifyListeners();
+      _events.add(BillingEvent(tr('bStartFailed')));
+    }
+  }
+
+  /// Credits a coin purchase once, then consumes it so it can be bought again.
+  /// Returns the coins added (0 if this purchase was already credited).
+  Future<int> _creditCoins(PurchaseDetails p) async {
+    final token = p.verificationData.serverVerificationData;
+    final amount = ProductIds.coinPacks[p.productID] ?? 0;
+    var added = 0;
+    if (!Save.I.creditedPurchases.contains(token)) {
+      added = amount;
+      Save.I.update(() {
+        Save.I.coins += amount;
+        Save.I.creditedPurchases = [...Save.I.creditedPurchases, token].reversed.take(200).toList().reversed.toList();
+      });
+    }
+    final android = _iap.getPlatformAddition<InAppPurchaseAndroidPlatformAddition>();
+    final r = await android.consumePurchase(p);
+    if (r.responseCode != BillingResponse.ok) {
+      debugPrint('Billing: consume failed ${r.debugMessage}');
+    }
+    return added;
+  }
+
   /// "Restore purchases": re-reads everything the player owns from Play.
   Future<void> restore() async {
     if (!available) await refresh();
@@ -162,6 +231,13 @@ class Billing extends ChangeNotifier {
   Future<void> _onPurchases(List<PurchaseDetails> list) async {
     for (final p in list) {
       if (!ProductIds.all.contains(p.productID)) continue;
+      final isCoins = ProductIds.coinPacks.containsKey(p.productID);
+      if (isCoins && (p.status == PurchaseStatus.purchased || p.status == PurchaseStatus.restored)) {
+        state[p.productID] = BuyState.idle;
+        final added = await _creditCoins(p);
+        if (added > 0) _events.add(BillingEvent(tr('coinsAdded', added), success: true));
+        continue; // consumed above; consumables need no acknowledgement
+      }
       switch (p.status) {
         case PurchaseStatus.pending:
           state[p.productID] = BuyState.pending;

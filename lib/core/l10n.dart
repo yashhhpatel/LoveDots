@@ -103,6 +103,9 @@ const _strings = <String, Map<String, String>>{
     'levelsDone': 'Levels completed: {n}',
     'coinsN': 'Coins: {n}',
     'shareText': "I am playing #LoveDots! Let's play together! Draw one line and bump the balls!",
+    'getCoins': 'Get More Coins!',
+    'free': 'FREE',
+    'coinsAdded': '+{n} coins!',
   },
   'zh': {
     'langName': '中文',
@@ -181,6 +184,9 @@ const _strings = <String, Map<String, String>>{
     'levelsDone': '已完成关卡：{n}',
     'coinsN': '金币：{n}',
     'shareText': '我正在玩 #LoveDots！一起来玩吧！画一条线，让两个球碰在一起！',
+    'getCoins': '获取更多金币！',
+    'free': '免费',
+    'coinsAdded': '+{n} 金币！',
   },
   'fr': {
     'langName': 'Français',
@@ -259,6 +265,9 @@ const _strings = <String, Map<String, String>>{
     'levelsDone': 'Niveaux terminés : {n}',
     'coinsN': 'Pièces : {n}',
     'shareText': 'Je joue à #LoveDots ! Viens jouer avec moi ! Trace une ligne et fais se toucher les balles !',
+    'getCoins': 'Plus de pièces !',
+    'free': 'GRATUIT',
+    'coinsAdded': '+{n} pièces !',
   },
   'de': {
     'langName': 'Deutsch',
@@ -337,6 +346,9 @@ const _strings = <String, Map<String, String>>{
     'levelsDone': 'Abgeschlossene Level: {n}',
     'coinsN': 'Münzen: {n}',
     'shareText': 'Ich spiele #LoveDots! Spiel mit mir! Zeichne eine Linie und lass die Bälle sich berühren!',
+    'getCoins': 'Mehr Münzen holen!',
+    'free': 'GRATIS',
+    'coinsAdded': '+{n} Münzen!',
   },
   'ja': {
     'langName': '日本語',
@@ -415,6 +427,9 @@ const _strings = <String, Map<String, String>>{
     'levelsDone': 'クリアしたレベル：{n}',
     'coinsN': 'コイン：{n}',
     'shareText': '#LoveDots で遊んでるよ！一緒に遊ぼう！線を1本描いてボールをくっつけよう！',
+    'getCoins': 'コインをもっと手に入れよう！',
+    'free': '無料',
+    'coinsAdded': '+{n} コイン！',
   },
   'ko': {
     'langName': '한국어',
@@ -493,6 +508,9 @@ const _strings = <String, Map<String, String>>{
     'levelsDone': '완료한 레벨: {n}',
     'coinsN': '코인: {n}',
     'shareText': '#LoveDots 하는 중! 같이 해요! 선 하나를 그려서 두 공을 만나게 하세요!',
+    'getCoins': '코인 더 받기!',
+    'free': '무료',
+    'coinsAdded': '+{n} 코인!',
   },
   'es': {
     'langName': 'Español',
@@ -571,5 +589,8 @@ const _strings = <String, Map<String, String>>{
     'levelsDone': 'Niveles completados: {n}',
     'coinsN': 'Monedas: {n}',
     'shareText': '¡Estoy jugando a #LoveDots! ¡Juguemos juntos! ¡Dibuja una línea y haz que las bolas se toquen!',
+    'getCoins': '¡Consigue más monedas!',
+    'free': 'GRATIS',
+    'coinsAdded': '¡+{n} monedas!',
   },
 };

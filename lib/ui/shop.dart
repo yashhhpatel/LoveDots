@@ -5,6 +5,7 @@ import '../art/characters.dart';
 import '../art/palette.dart';
 import '../core/audio.dart';
 import '../core/save.dart';
+import 'coin_shop.dart';
 import 'widgets.dart';
 import '../core/l10n.dart';
 
@@ -37,6 +38,11 @@ class _ShopDialogState extends State<ShopDialog> {
   void initState() {
     super.initState();
     _page = _pc.initialPage;
+    Save.I.addListener(_saveChanged);
+  }
+
+  void _saveChanged() {
+    if (mounted) setState(() {});
   }
 
   void _setTab(ShopTab t) {
@@ -51,6 +57,7 @@ class _ShopDialogState extends State<ShopDialog> {
 
   @override
   void dispose() {
+    Save.I.removeListener(_saveChanged);
     _pc.dispose();
     super.dispose();
   }
@@ -104,6 +111,7 @@ class _ShopDialogState extends State<ShopDialog> {
   void _buy(String id, int price) {
     if (Save.I.coins < price) {
       showToast(context, tr('notEnoughCoins'));
+      showCoinShop(context);
       return;
     }
     Audio.I.play(Sfx.coin);
@@ -130,7 +138,7 @@ class _ShopDialogState extends State<ShopDialog> {
         width: 690,
         height: 377,
         onClose: () => Navigator.of(context).pop(),
-        headerLeft: CoinPill(Save.I.coins),
+        headerLeft: CoinPill(Save.I.coins, onTap: () => showCoinShop(context)),
         child: Stack(
           children: [
             Positioned.fill(

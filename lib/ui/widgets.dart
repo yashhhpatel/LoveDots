@@ -76,7 +76,8 @@ class Pill extends StatelessWidget {
           color: color,
           borderRadius: BorderRadius.circular(s(height)),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.15), offset: Offset(0, s(2)))
+            BoxShadow(
+                color: Colors.black.withOpacity(0.15), offset: Offset(0, s(2)))
           ],
         ),
         alignment: Alignment.center,
@@ -137,7 +138,8 @@ class RoundBtn extends StatelessWidget {
             if (off)
               Transform.rotate(
                 angle: -math.pi / 4,
-                child: Container(width: s(size * 0.85), height: s(2.6), color: color),
+                child: Container(
+                    width: s(size * 0.85), height: s(2.6), color: color),
               ),
           ],
         ),
@@ -152,8 +154,8 @@ class CoinIcon extends StatelessWidget {
   const CoinIcon({super.key, this.size = 20, this.plus = false});
 
   @override
-  Widget build(BuildContext context) => CustomPaint(
-      size: Size.square(size), painter: _CoinPainter(plus));
+  Widget build(BuildContext context) =>
+      CustomPaint(size: Size.square(size), painter: _CoinPainter(plus));
 }
 
 class _CoinPainter extends CustomPainter {
@@ -165,7 +167,9 @@ class _CoinPainter extends CustomPainter {
     final o = Offset(r, r);
     c.drawCircle(o, r, Paint()..color = C.goldDark);
     c.drawCircle(o - Offset(0, r * 0.08), r * 0.88, Paint()..color = C.gold);
-    c.drawCircle(o - Offset(0, r * 0.08), r * 0.55,
+    c.drawCircle(
+        o - Offset(0, r * 0.08),
+        r * 0.55,
         Paint()
           ..color = const Color(0xFFFFE08A)
           ..style = PaintingStyle.stroke
@@ -174,8 +178,10 @@ class _CoinPainter extends CustomPainter {
       final g = Paint()..color = const Color(0xFF3DBE5A);
       final po = o + Offset(r * 0.25, r * 0.45);
       c.drawCircle(po, r * 0.45, Paint()..color = Colors.white);
-      c.drawRect(Rect.fromCenter(center: po, width: r * 0.6, height: r * 0.18), g);
-      c.drawRect(Rect.fromCenter(center: po, width: r * 0.18, height: r * 0.6), g);
+      c.drawRect(
+          Rect.fromCenter(center: po, width: r * 0.6, height: r * 0.18), g);
+      c.drawRect(
+          Rect.fromCenter(center: po, width: r * 0.18, height: r * 0.6), g);
     }
   }
 
@@ -187,7 +193,8 @@ class StarShape extends StatelessWidget {
   final double size;
   final bool on;
   final bool badge; // small gold coin-like star used on the ink bar
-  const StarShape({super.key, required this.size, this.on = true, this.badge = false});
+  const StarShape(
+      {super.key, required this.size, this.on = true, this.badge = false});
 
   @override
   Widget build(BuildContext context) =>
@@ -203,9 +210,17 @@ class _StarPainter extends CustomPainter {
     final r = sz.width / 2;
     final o = Offset(r, r);
     if (badge) {
-      c.drawCircle(o, r, Paint()..color = on ? const Color(0xFF8A6A1E) : const Color(0xFF5A5A5A));
-      c.drawCircle(o, r * 0.82, Paint()..color = on ? C.gold : const Color(0xFF8A8A8A));
-      c.drawPath(starPath(o, r * 0.62, r * 0.28), Paint()..color = on ? const Color(0xFFB8860B) : const Color(0xFF5A5A5A));
+      c.drawCircle(
+          o,
+          r,
+          Paint()
+            ..color = on ? const Color(0xFF8A6A1E) : const Color(0xFF5A5A5A));
+      c.drawCircle(
+          o, r * 0.82, Paint()..color = on ? C.gold : const Color(0xFF8A8A8A));
+      c.drawPath(
+          starPath(o, r * 0.62, r * 0.28),
+          Paint()
+            ..color = on ? const Color(0xFFB8860B) : const Color(0xFF5A5A5A));
       return;
     }
     final path = starPath(o, r, r * 0.48, round: true);
@@ -254,7 +269,8 @@ class Callout extends StatelessWidget {
           padding: EdgeInsets.only(left: s(width) * arrowX - s(16)),
           child: Transform.flip(
             flipX: flip,
-            child: CustomPaint(size: Size(s(32), s(40)), painter: _ArrowPainter()),
+            child:
+                CustomPaint(size: Size(s(32), s(40)), painter: _ArrowPainter()),
           ),
         ),
         Transform.rotate(
@@ -265,10 +281,13 @@ class Callout extends StatelessWidget {
             decoration: BoxDecoration(
               color: C.callout,
               borderRadius: BorderRadius.circular(s(8)),
-              boxShadow: [BoxShadow(color: Colors.black12, offset: Offset(s(2), s(3)))],
+              boxShadow: [
+                BoxShadow(color: Colors.black12, offset: Offset(s(2), s(3)))
+              ],
             ),
             child: Text(text,
-                style: TextStyle(color: Colors.white, fontSize: s(14.5), height: 1.25)),
+                style: TextStyle(
+                    color: Colors.white, fontSize: s(14.5), height: 1.25)),
           ),
         ),
       ],
@@ -346,7 +365,8 @@ class PopupCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.white.withOpacity(0.4),
-                          border: Border.all(color: const Color(0xFF333333), width: s(2.6)),
+                          border: Border.all(
+                              color: const Color(0xFF333333), width: s(2.6)),
                         ),
                         child: Icon(Icons.close_rounded,
                             color: const Color(0xFF333333), size: s(28)),
@@ -396,23 +416,28 @@ class _CardPainter extends CustomPainter {
 /// Coin balance pill shown in shop headers.
 class CoinPill extends StatelessWidget {
   final int coins;
-  const CoinPill(this.coins, {super.key});
+  final VoidCallback? onTap;
+  const CoinPill(this.coins, {super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: s(150),
-      height: s(34),
-      decoration: BoxDecoration(
-        color: const Color(0xFFC9A355),
-        borderRadius: BorderRadius.circular(s(17)),
+    return Tap(
+      onTap: onTap,
+      child: Container(
+        width: s(150),
+        height: s(34),
+        decoration: BoxDecoration(
+          color: const Color(0xFFC9A355),
+          borderRadius: BorderRadius.circular(s(17)),
+        ),
+        padding: EdgeInsets.only(left: s(4)),
+        child: Row(children: [
+          CoinIcon(size: s(30), plus: true),
+          SizedBox(width: s(6)),
+          Text('$coins',
+              style: TextStyle(color: Colors.white, fontSize: s(20))),
+        ]),
       ),
-      padding: EdgeInsets.only(left: s(4)),
-      child: Row(children: [
-        CoinIcon(size: s(30), plus: true),
-        SizedBox(width: s(6)),
-        Text('$coins', style: TextStyle(color: Colors.white, fontSize: s(20))),
-      ]),
     );
   }
 }
@@ -430,7 +455,8 @@ void showToast(BuildContext context, String msg) {
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: s(24), vertical: s(10)),
             color: Colors.black.withOpacity(0.55),
-            child: Text(msg, style: TextStyle(color: Colors.white, fontSize: s(16))),
+            child: Text(msg,
+                style: TextStyle(color: Colors.white, fontSize: s(16))),
           ),
         ),
       ),
@@ -450,7 +476,9 @@ Future<T?> showPopup<T>(BuildContext context, Widget child) {
     pageBuilder: (_, __, ___) => Center(child: child),
     transitionBuilder: (_, a, __, child) => Opacity(
       opacity: a.value,
-      child: Transform.scale(scale: 0.85 + 0.15 * Curves.easeOutBack.transform(a.value), child: child),
+      child: Transform.scale(
+          scale: 0.85 + 0.15 * Curves.easeOutBack.transform(a.value),
+          child: child),
     ),
   );
 }
