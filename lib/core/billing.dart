@@ -6,6 +6,7 @@ import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 
 import 'ads.dart';
 import 'save.dart';
+import 'l10n.dart';
 
 /// Play Console product IDs. Create these before release:
 /// * [monthly]: auto-renewing subscription, 1 month, ₹299
@@ -111,7 +112,7 @@ class Billing extends ChangeNotifier {
   /// Starts the Play purchase sheet for [id].
   Future<void> buy(String id) async {
     if (owns(id) || (id == ProductIds.monthly && Save.I.adsFreeLifetime)) {
-      _events.add(const BillingEvent('You already have this.', success: true));
+      _events.add(BillingEvent(tr('bAlready'), success: true));
       return;
     }
     if (!available) {
@@ -119,11 +120,11 @@ class Billing extends ChangeNotifier {
     }
     final product = products[id];
     if (!available || product == null) {
-      _events.add(const BillingEvent('Google Play is not available right now. Please try again later.'));
+      _events.add(BillingEvent(tr('bUnavailable')));
       return;
     }
     if (state[id] == BuyState.pending) {
-      _events.add(const BillingEvent('Your payment is still pending. Ads will be removed once it completes.'));
+      _events.add(BillingEvent(tr('bStillPending')));
       return;
     }
     state[id] = BuyState.buying;
@@ -136,7 +137,7 @@ class Billing extends ChangeNotifier {
       debugPrint('Billing: buy failed $e');
       state[id] = BuyState.idle;
       notifyListeners();
-      _events.add(const BillingEvent('Could not start the purchase. Please try again.'));
+      _events.add(BillingEvent(tr('bStartFailed')));
     }
   }
 
@@ -144,17 +145,17 @@ class Billing extends ChangeNotifier {
   Future<void> restore() async {
     if (!available) await refresh();
     if (!available) {
-      _events.add(const BillingEvent('Google Play is not available right now. Please try again later.'));
+      _events.add(BillingEvent(tr('bUnavailable')));
       return;
     }
     final n = await _syncOwned();
     notifyListeners();
     if (n == null) {
-      _events.add(const BillingEvent('Could not reach Google Play. Please try again.'));
+      _events.add(BillingEvent(tr('bNoReach')));
     } else if (n == 0) {
-      _events.add(const BillingEvent('No previous purchases found.'));
+      _events.add(BillingEvent(tr('bNothing')));
     } else {
-      _events.add(const BillingEvent('Purchases restored. Ads removed!', success: true));
+      _events.add(BillingEvent(tr('bRestored'), success: true));
     }
   }
 
@@ -164,28 +165,26 @@ class Billing extends ChangeNotifier {
       switch (p.status) {
         case PurchaseStatus.pending:
           state[p.productID] = BuyState.pending;
-          _events.add(const BillingEvent(
-              'Payment pending. Ads will be removed as soon as the payment completes.'));
+          _events.add(BillingEvent(tr('bPending')));
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
           _grant(p.productID);
           state[p.productID] = BuyState.idle;
           if (p.status == PurchaseStatus.purchased) {
-            _events.add(const BillingEvent('Thank you! Ads removed.', success: true));
+            _events.add(BillingEvent(tr('bThanks'), success: true));
           }
         case PurchaseStatus.canceled:
           state[p.productID] = BuyState.idle;
-          _events.add(const BillingEvent('Purchase cancelled.'));
+          _events.add(BillingEvent(tr('bCancelled')));
         case PurchaseStatus.error:
           state[p.productID] = BuyState.idle;
           final msg = p.error?.message ?? '';
           if (msg.contains('itemAlreadyOwned')) {
             // Bought earlier (another device or reinstall): restore it.
             await _syncOwned();
-            _events.add(const BillingEvent('Already purchased. Your purchase has been restored.',
-                success: true));
+            _events.add(BillingEvent(tr('bOwned'), success: true));
           } else {
-            _events.add(const BillingEvent('Purchase failed. Please try again.'));
+            _events.add(BillingEvent(tr('bFailed')));
           }
       }
       // Acknowledge, or Google refunds the purchase after 3 days.

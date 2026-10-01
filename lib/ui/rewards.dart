@@ -8,6 +8,7 @@ import '../core/ads.dart';
 import '../core/audio.dart';
 import '../core/save.dart';
 import 'widgets.dart';
+import '../core/l10n.dart';
 
 const _titleStyleColor = Color(0xFFF26B7A);
 
@@ -214,12 +215,12 @@ class _LuckyWheelState extends State<LuckyWheel> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final r = s(162);
     return _RewardFrame(
-      title: 'Lucky Wheel',
+      title: tr('luckyWheel'),
       coins: _fly.isAnimating ? _shownCoins : Save.I.coins,
       onClose: _done ? () => Navigator.of(context).pop() : null,
       buttons: _done
           ? [
-              Pill('NEXT',
+              Pill(tr('next'),
                   color: const Color(0xFFF0B13C),
                   width: 146,
                   height: 40,
@@ -230,7 +231,7 @@ class _LuckyWheelState extends State<LuckyWheel> with TickerProviderStateMixin {
                     widget.onNext();
                   }),
               if (!_spunAgain)
-                Pill('SPIN AGAIN',
+                Pill(tr('spinAgain'),
                     color: C.blueBtn,
                     width: 196,
                     height: 40,
@@ -292,14 +293,14 @@ String grantFreeItem(String kind) {
     if (locked.isNotEmpty) {
       final it = locked[rnd.nextInt(locked.length)];
       Save.I.update(() => Save.I.ownedBalls.add(it.id));
-      return 'New ball skin unlocked!';
+      return tr('newBall');
     }
   } else {
     final locked = penItems.where((e) => !Save.I.ownedPens.contains(e.id)).toList();
     if (locked.isNotEmpty) {
       final it = locked[rnd.nextInt(locked.length)];
       Save.I.update(() => Save.I.ownedPens.add(it.id));
-      return 'New pen unlocked!';
+      return tr('newPen');
     }
   }
   Save.I.update(() => Save.I.coins += 200);
@@ -446,11 +447,11 @@ class _LuckyDrawState extends State<LuckyDraw> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     return _RewardFrame(
-      title: 'Lucky Draw',
+      title: tr('luckyDraw'),
       coins: Save.I.coins,
       buttons: _picked != null && _flip.isCompleted
           ? [
-              Pill('NEXT',
+              Pill(tr('next'),
                   color: const Color(0xFFF0B13C),
                   width: 146,
                   height: 40,
@@ -549,11 +550,11 @@ class _ChestRewardState extends State<ChestReward> with SingleTickerProviderStat
     final shake = _a.value < 0.6 ? math.sin(_a.value * 60) * 0.06 : 0.0;
     final open = ((_a.value - 0.6) / 0.4).clamp(0.0, 1.0);
     return _RewardFrame(
-      title: 'Reward',
+      title: tr('reward'),
       coins: Save.I.coins,
       buttons: _a.isCompleted
           ? [
-              Pill('NEXT',
+              Pill(tr('next'),
                   color: const Color(0xFFF0B13C),
                   width: 146,
                   height: 40,

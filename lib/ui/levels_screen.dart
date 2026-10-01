@@ -8,6 +8,7 @@ import 'remove_ads.dart';
 import 'settings.dart';
 import 'shop.dart';
 import 'widgets.dart';
+import '../core/l10n.dart';
 
 class LevelsScreen extends StatefulWidget {
   final void Function(int level) onPlay;
@@ -83,7 +84,7 @@ class _LevelsScreenState extends State<LevelsScreen> {
             left: 0,
             right: 0,
             child: Center(
-              child: Text('LEVELS',
+              child: Text(tr('levels'),
                   style: TextStyle(color: Colors.white, fontSize: s(22), letterSpacing: 0.5)),
             ),
           ),
@@ -116,9 +117,15 @@ class _LevelsScreenState extends State<LevelsScreen> {
                       ),
                     ),
                   ]),
-                  Text('Daily\nChallenge',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: s(8.5), color: const Color(0xFF777777), height: 1)),
+                  SizedBox(
+                    width: s(60),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(tr('daily'),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: s(8.5), color: const Color(0xFF777777), height: 1)),
+                    ),
+                  ),
                 ]),
               ),
             ),
@@ -248,7 +255,11 @@ class _LevelsScreenState extends State<LevelsScreen> {
                     color: const Color(0xFFF2507A),
                     borderRadius: BorderRadius.circular(s(8)),
                   ),
-                  child: Text('You are here!', style: TextStyle(color: Colors.white, fontSize: s(11.5))),
+                  padding: EdgeInsets.symmetric(horizontal: s(5)),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(tr('youAreHere'), style: TextStyle(color: Colors.white, fontSize: s(11.5))),
+                  ),
                 ),
               ),
             Positioned(

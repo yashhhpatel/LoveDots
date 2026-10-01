@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../art/palette.dart';
 import '../core/ads.dart';
 import '../core/audio.dart';
+import '../core/l10n.dart';
 import '../core/save.dart';
 import '../game/levels.dart';
 import 'help.dart';
@@ -17,97 +18,140 @@ class SettingsDialog extends StatefulWidget {
 }
 
 class _SettingsDialogState extends State<SettingsDialog> {
+  bool _switching = false;
+
+  /// Like the reference game: each tap moves to the next language, with a
+  /// short "Loading..." while the texts change.
+  Future<void> _nextLanguage() async {
+    if (_switching) return;
+    setState(() => _switching = true);
+    await Future.delayed(const Duration(milliseconds: 650));
+    Save.I.update(() => Save.I.lang = nextLanguage(Save.I.lang));
+    if (mounted) setState(() => _switching = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final save = Save.I;
     final items = <(IconData, String, bool, VoidCallback)>[
-      (save.sound ? Icons.volume_up_rounded : Icons.volume_off_rounded, 'Sounds', save.sound, () {
-        save.update(() => save.sound = !save.sound);
-        if (!save.sound) Audio.I.stopDraw();
-        setState(() {});
-      }),
-      (Icons.music_note_rounded, 'Music', save.music, () {
-        save.update(() => save.music = !save.music);
-        Audio.I.refreshMusic();
-        setState(() {});
-      }),
-      (Icons.vibration_rounded, 'Vibration', save.vibration, () {
-        save.update(() => save.vibration = !save.vibration);
-        Audio.I.vibrate();
-        setState(() {});
-      }),
-      (Icons.leaderboard_rounded, 'Leaderboard', true, () => showLeaderboard(context)),
-      (Icons.question_mark_rounded, 'Help', true, () => showPopup(context, const HelpDialog())),
-      (Icons.mail_rounded, 'Contact us', true, () => showContact(context)),
-      (Icons.privacy_tip_rounded, 'Privacy', true, () => showPrivacy(context)),
-      (Icons.star_rounded, 'English', true, () => _language(context)),
+      (
+        save.sound ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+        tr('sounds'),
+        save.sound,
+        () {
+          save.update(() => save.sound = !save.sound);
+          if (!save.sound) Audio.I.stopDraw();
+          setState(() {});
+        }
+      ),
+      (
+        Icons.music_note_rounded,
+        tr('music'),
+        save.music,
+        () {
+          save.update(() => save.music = !save.music);
+          Audio.I.refreshMusic();
+          setState(() {});
+        }
+      ),
+      (
+        Icons.vibration_rounded,
+        tr('vibration'),
+        save.vibration,
+        () {
+          save.update(() => save.vibration = !save.vibration);
+          Audio.I.vibrate();
+          setState(() {});
+        }
+      ),
+      (
+        Icons.leaderboard_rounded,
+        tr('leaderboard'),
+        true,
+        () => showLeaderboard(context)
+      ),
+      (
+        Icons.question_mark_rounded,
+        tr('help'),
+        true,
+        () => showPopup(context, const HelpDialog())
+      ),
+      (Icons.mail_rounded, tr('contact'), true, () => showContact(context)),
+      (
+        Icons.privacy_tip_rounded,
+        tr('privacy'),
+        true,
+        () => showPrivacy(context)
+      ),
+      (Icons.star_rounded, tr('langName'), true, _nextLanguage),
     ];
     return Material(
       color: Colors.transparent,
-      child: PopupCard(
-        title: 'Settings',
-        width: 540,
-        height: 340,
-        onClose: () => Navigator.of(context).pop(),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: s(30), vertical: s(28)),
-          child: GridView.count(
-            crossAxisCount: 4,
-            physics: const NeverScrollableScrollPhysics(),
-            childAspectRatio: 1.05,
-            children: [
-              for (final it in items)
-                Tap(
-                  onTap: it.$4,
-                  child: Column(
-                    children: [
-                      Container(
-                        width: s(52),
-                        height: s(52),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color(0xFFE3F3F2),
-                          border: Border.all(color: const Color(0xFFE3F3F2), width: s(4)),
-                        ),
-                        child: Container(
+      child: Stack(children: [
+        PopupCard(
+          title: tr('settings'),
+          width: 540,
+          height: 340,
+          onClose: () => Navigator.of(context).pop(),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: s(30), vertical: s(28)),
+            child: GridView.count(
+              crossAxisCount: 4,
+              physics: const NeverScrollableScrollPhysics(),
+              childAspectRatio: 1.05,
+              children: [
+                for (final it in items)
+                  Tap(
+                    onTap: it.$4,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: s(52),
+                          height: s(52),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: it.$3 ? C.tealBar : const Color(0xFFB0B0B0),
+                            color: const Color(0xFFE3F3F2),
+                            border: Border.all(
+                                color: const Color(0xFFE3F3F2), width: s(4)),
                           ),
-                          child: Icon(it.$1, color: Colors.white, size: s(26)),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color:
+                                  it.$3 ? C.tealBar : const Color(0xFFB0B0B0),
+                            ),
+                            child:
+                                Icon(it.$1, color: Colors.white, size: s(26)),
+                          ),
                         ),
-                      ),
-                      SizedBox(height: s(6)),
-                      Text(it.$2, style: TextStyle(fontSize: s(14), color: const Color(0xFF555555))),
-                    ],
+                        SizedBox(height: s(6)),
+                        SizedBox(
+                          width: s(110),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(it.$2,
+                                style: TextStyle(
+                                    fontSize: s(14),
+                                    color: const Color(0xFF555555))),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
-
-  void _language(BuildContext context) {
-    showPopup(
-      context,
-      Material(
-        color: Colors.transparent,
-        child: PopupCard(
-          title: 'Language',
-          width: 360,
-          height: 200,
-          onClose: () => Navigator.of(context).pop(),
-          child: Center(
-            child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.check_circle_rounded, color: C.tealBar, size: s(26)),
-              SizedBox(width: s(10)),
-              Text('English', style: TextStyle(fontSize: s(20), color: const Color(0xFF444444))),
-            ]),
+        if (_switching)
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.45),
+              alignment: Alignment.center,
+              child: Text(tr('loadingDots'),
+                  style: TextStyle(color: Colors.white, fontSize: s(22))),
+            ),
           ),
-        ),
-      ),
+      ]),
     );
   }
 }
@@ -120,7 +164,7 @@ void showLeaderboard(BuildContext context) {
     Material(
       color: Colors.transparent,
       child: PopupCard(
-        title: 'Leaderboard',
+        title: tr('leaderboard'),
         width: 420,
         height: 260,
         onClose: () => Navigator.of(context).pop(),
@@ -131,14 +175,17 @@ void showLeaderboard(BuildContext context) {
               StarShape(size: s(40)),
               SizedBox(width: s(10)),
               Text('${save.totalStars}/${levels.length * 3}',
-                  style: TextStyle(fontSize: s(30), color: const Color(0xFF444444))),
+                  style: TextStyle(
+                      fontSize: s(30), color: const Color(0xFF444444))),
             ]),
             SizedBox(height: s(14)),
-            Text('Levels completed: $done',
-                style: TextStyle(fontSize: s(17), color: const Color(0xFF666666))),
+            Text(tr('levelsDone', done),
+                style:
+                    TextStyle(fontSize: s(17), color: const Color(0xFF666666))),
             SizedBox(height: s(6)),
-            Text('Coins: ${save.coins}',
-                style: TextStyle(fontSize: s(17), color: const Color(0xFF666666))),
+            Text(tr('coinsN', save.coins),
+                style:
+                    TextStyle(fontSize: s(17), color: const Color(0xFF666666))),
           ],
         ),
       ),
@@ -153,11 +200,12 @@ Future<void> openPrivacyPolicy(BuildContext context) async {
   Ads.I.skipNextResume();
   var ok = false;
   try {
-    ok = await launchUrl(Uri.parse(kPrivacyPolicyUrl), mode: LaunchMode.externalApplication);
+    ok = await launchUrl(Uri.parse(kPrivacyPolicyUrl),
+        mode: LaunchMode.externalApplication);
   } catch (_) {}
   if (!ok) {
     Ads.I.onResumeHandled();
-    if (context.mounted) showToast(context, 'Could not open the browser. Please try again.');
+    if (context.mounted) showToast(context, tr('browserFail'));
   }
 }
 
@@ -174,18 +222,26 @@ Future<void> showPrivacy(BuildContext context) async {
     Material(
       color: Colors.transparent,
       child: PopupCard(
-        title: 'Privacy',
+        title: tr('privacy'),
         width: 460,
         height: 250,
         onClose: () => Navigator.of(context).pop(),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Pill('PRIVACY POLICY',
-                color: C.tealBar, width: 260, height: 40, font: 16, onTap: () => openPrivacyPolicy(context)),
+            Pill(tr('privacyPolicy'),
+                color: C.tealBar,
+                width: 260,
+                height: 40,
+                font: 16,
+                onTap: () => openPrivacyPolicy(context)),
             SizedBox(height: s(16)),
-            Pill('AD PRIVACY SETTINGS',
-                color: C.blueBtn, width: 260, height: 40, font: 16, onTap: Ads.I.showPrivacyOptions),
+            Pill(tr('adPrivacy'),
+                color: C.blueBtn,
+                width: 260,
+                height: 40,
+                font: 16,
+                onTap: Ads.I.showPrivacyOptions),
           ],
         ),
       ),
@@ -209,7 +265,7 @@ Future<void> openContactEmail(BuildContext context) async {
   if (!ok) {
     Ads.I.onResumeHandled();
     await Clipboard.setData(const ClipboardData(text: kContactEmail));
-    if (context.mounted) showToast(context, 'No email app found. Email address copied.');
+    if (context.mounted) showToast(context, tr('noEmailApp'));
   }
 }
 
@@ -219,7 +275,7 @@ void showContact(BuildContext context) {
     Material(
       color: Colors.transparent,
       child: PopupCard(
-        title: 'Contact us',
+        title: tr('contact'),
         width: 520,
         height: 260,
         onClose: () => Navigator.of(context).pop(),
@@ -228,14 +284,16 @@ void showContact(BuildContext context) {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Questions, ideas or found a bug? We would love to hear from you.',
+              Text(tr('contactBody'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: s(15), color: const Color(0xFF666666))),
+                  style: TextStyle(
+                      fontSize: s(15), color: const Color(0xFF666666))),
               SizedBox(height: s(18)),
               Tap(
                 onTap: () => openContactEmail(context),
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: s(16), vertical: s(10)),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: s(16), vertical: s(10)),
                   decoration: BoxDecoration(
                     color: const Color(0xFFE3F3F2),
                     borderRadius: BorderRadius.circular(s(24)),

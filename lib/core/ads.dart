@@ -5,6 +5,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'audio.dart';
 import 'save.dart';
+import 'l10n.dart';
 
 /// Google's public test ad unit IDs. Replace with real IDs before release.
 class AdIds {
@@ -29,8 +30,7 @@ class Ads extends ChangeNotifier {
 
   static const levelsPerInterstitial = 3;
   static const _appOpenMaxAge = Duration(hours: 4);
-  static const unavailableMessage =
-      'Internet connection lost, please check it out and try again.';
+  static String get unavailableMessage => tr('adUnavailable');
 
   bool _ready = false;
   bool get ready => _ready;

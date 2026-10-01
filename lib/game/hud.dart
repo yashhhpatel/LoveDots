@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../art/palette.dart';
 import '../ui/widgets.dart';
+import '../core/l10n.dart';
 
 /// Top bar shown during play: back, sound, music, ink meter, hint, retry.
 class Hud extends StatelessWidget {
@@ -192,9 +193,17 @@ class HintPill extends StatelessWidget {
               children: [
                 Icon(Icons.lightbulb_rounded, color: const Color(0xFF1B2A38), size: s(24)),
                 SizedBox(width: s(2)),
-                Text(free ? 'HINT\nFREE' : 'HINT',
-                    style: TextStyle(
-                        color: Colors.white, fontSize: s(9.5), height: 1.0, fontWeight: FontWeight.w600)),
+                Flexible(
+                  child: Padding(
+                    padding: EdgeInsets.only(right: s(free ? 6 : 16)),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(free ? tr('hintFree') : tr('hint'),
+                          style: TextStyle(
+                              color: Colors.white, fontSize: s(9.5), height: 1.0, fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

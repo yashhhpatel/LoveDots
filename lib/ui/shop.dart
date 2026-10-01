@@ -6,6 +6,7 @@ import '../art/palette.dart';
 import '../core/audio.dart';
 import '../core/save.dart';
 import 'widgets.dart';
+import '../core/l10n.dart';
 
 enum ShopTab { pen, ball, bg }
 
@@ -55,9 +56,9 @@ class _ShopDialogState extends State<ShopDialog> {
   }
 
   String get _title => switch (tab) {
-        ShopTab.pen => 'Pen Shop',
-        ShopTab.ball => 'Ball Shop',
-        ShopTab.bg => 'Background Shop',
+        ShopTab.pen => tr('penShop'),
+        ShopTab.ball => tr('ballShop'),
+        ShopTab.bg => tr('bgShop'),
       };
 
   int get _count => switch (tab) {
@@ -102,7 +103,7 @@ class _ShopDialogState extends State<ShopDialog> {
 
   void _buy(String id, int price) {
     if (Save.I.coins < price) {
-      showToast(context, 'Not enough coins');
+      showToast(context, tr('notEnoughCoins'));
       return;
     }
     Audio.I.play(Sfx.coin);
@@ -251,10 +252,10 @@ class _ShopDialogState extends State<ShopDialog> {
   Widget _button() {
     final (id, price) = _item(_page.clamp(0, _count - 1));
     if (_using(id)) {
-      return Pill('USING', color: C.redBtn, width: 150, height: 34, font: 17, onTap: () {});
+      return Pill(tr('using'), color: C.redBtn, width: 150, height: 34, font: 17, onTap: () {});
     }
     if (_owned(id)) {
-      return Pill('USE', color: C.greenBtn, width: 150, height: 34, font: 17, onTap: () => _use(id));
+      return Pill(tr('use'), color: C.greenBtn, width: 150, height: 34, font: 17, onTap: () => _use(id));
     }
     return Column(
       mainAxisSize: MainAxisSize.min,

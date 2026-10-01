@@ -80,17 +80,22 @@ class Pill extends StatelessWidget {
           ],
         ),
         alignment: Alignment.center,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[icon!, SizedBox(width: s(8))],
-            Text(text,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: s(font),
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5)),
-          ],
+        padding: EdgeInsets.symmetric(horizontal: s(height * 0.35)),
+        // Translations can be much longer than English: shrink to fit.
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[icon!, SizedBox(width: s(8))],
+              Text(text,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: s(font),
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5)),
+            ],
+          ),
         ),
       ),
     );

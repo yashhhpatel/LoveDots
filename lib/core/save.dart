@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'l10n.dart';
 
 /// Persistent player progress and settings.
 class Save extends ChangeNotifier {
@@ -24,6 +25,7 @@ class Save extends ChangeNotifier {
   String bg = 'notebook';
   Set<int> freeHintUsed = {};
   bool dailyChallenge = false;
+  String lang = 'en';
 
   /// Ads-free entitlements, re-synced from Google Play on every launch.
   bool adsFreeLifetime = false;
@@ -57,6 +59,8 @@ class Save extends ChangeNotifier {
     freeHintUsed =
         (_p.getStringList('freeHint') ?? []).map(int.parse).toSet();
     dailyChallenge = _p.getBool('daily') ?? false;
+    lang = _p.getString('lang') ?? defaultLanguage();
+    if (!kLanguages.contains(lang)) lang = 'en';
     adsFreeLifetime = _p.getBool('adsFreeLifetime') ?? false;
     adsFreeMonthly = _p.getBool('adsFreeMonthly') ?? false;
     levelsSinceAd = _p.getInt('levelsSinceAd') ?? 0;
@@ -86,6 +90,7 @@ class Save extends ChangeNotifier {
     _p.setStringList(
         'freeHint', freeHintUsed.map((e) => '$e').toList());
     _p.setBool('daily', dailyChallenge);
+    _p.setString('lang', lang);
     _p.setBool('adsFreeLifetime', adsFreeLifetime);
     _p.setBool('adsFreeMonthly', adsFreeMonthly);
     _p.setInt('levelsSinceAd', levelsSinceAd);

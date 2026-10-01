@@ -6,6 +6,7 @@ import '../game/levels.dart';
 import '../game/scene.dart';
 import '../game/sim.dart';
 import 'widgets.dart';
+import '../core/l10n.dart';
 
 /// "Help" pages: three annotated screenshots of the game.
 class HelpDialog extends StatefulWidget {
@@ -20,7 +21,7 @@ class _HelpPage {
   final bool pen;
   final bool hint;
   final double ink;
-  final List<(String, Offset, double, double, bool)> callouts; // text, pos, width, arrowX, flip
+  final List<(String, Offset, double, double, bool)> callouts; // text key, pos, width, arrowX, flip
   const _HelpPage(this.level, this.stroke, this.pen, this.hint, this.ink, this.callouts);
 }
 
@@ -40,8 +41,8 @@ final _pages = [
     false,
     0.71,
     [
-      ('You could get 3 stars by draw a shorter line or following the hint.', const Offset(330, 200), 300, 0.18, false),
-      ('The progress bar shows the usage of the ink, the less you use, the easier you can get 3 stars.',
+      ('tutStars', const Offset(330, 200), 300, 0.18, false),
+      ('tutProgress',
           const Offset(600, 110), 330, 0.25, false),
     ],
   ),
@@ -60,7 +61,7 @@ final _pages = [
     true,
     1.0,
     [
-      ("If you fail to complete a level or you can't get 3 stars, tap the hint button!",
+      ('tutHint',
           const Offset(640, 105), 330, 0.82, true),
     ],
   ),
@@ -77,7 +78,7 @@ final _pages = [
     false,
     0.27,
     [
-      ('You can click the Retry button to redo it.', const Offset(740, 105), 330, 0.9, true),
+      ('tutRetry', const Offset(740, 105), 330, 0.9, true),
     ],
   ),
 ];
@@ -205,7 +206,7 @@ class _HelpScene extends StatelessWidget {
                   ? size.width - (1152 - c.$2.dx) * S.k
                   : size.width / 2 + (c.$2.dx - 576) * S.k,
               top: s(c.$2.dy - 44),
-              child: Callout(c.$1, width: c.$3, arrowX: c.$4, flip: c.$5),
+              child: Callout(tr(c.$1), width: c.$3, arrowX: c.$4, flip: c.$5),
             ),
         ],
       ),

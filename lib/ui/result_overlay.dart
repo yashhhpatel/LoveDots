@@ -10,6 +10,7 @@ import '../core/save.dart';
 import '../game/levels.dart';
 import 'rewards.dart';
 import 'widgets.dart';
+import '../core/l10n.dart';
 
 /// Level-complete screen: stars, coins, thumbnail card, reward, SHARE / NEXT.
 class ResultOverlay extends StatefulWidget {
@@ -95,7 +96,7 @@ class _ResultOverlayState extends State<ResultOverlay> with TickerProviderStateM
             DateTime.now().add(const Duration(hours: 24)).millisecondsSinceEpoch);
         Audio.I.play(Sfx.coin);
         setState(() => _claimed = true);
-        showToast(context, 'Bonus skin unlocked for 24h!');
+        showToast(context, tr('bonusSkinToast'));
     }
   }
 
@@ -120,7 +121,7 @@ class _ResultOverlayState extends State<ResultOverlay> with TickerProviderStateM
               left: 0,
               right: 0,
               child: Center(
-                child: Text('Daily Challenge Activated!',
+                child: Text(tr('dailyActivated'),
                     style: TextStyle(color: Colors.white, fontSize: s(17))),
               ),
             ),
@@ -151,7 +152,7 @@ class _ResultOverlayState extends State<ResultOverlay> with TickerProviderStateM
             top: s(366),
             child: ScaleTransition(
               scale: pop,
-              child: Pill('SHARE', color: C.pinkBtn, width: 150, height: 36, font: 16, onTap: widget.onShare),
+              child: Pill(tr('share'), color: C.pinkBtn, width: 150, height: 36, font: 16, onTap: widget.onShare),
             ),
           ),
           Positioned(
@@ -159,7 +160,7 @@ class _ResultOverlayState extends State<ResultOverlay> with TickerProviderStateM
             top: s(366),
             child: ScaleTransition(
               scale: pop,
-              child: Pill('NEXT', color: C.yellowBtn, width: 150, height: 36, font: 22, onTap: widget.onNext),
+              child: Pill(tr('next'), color: C.yellowBtn, width: 150, height: 36, font: 22, onTap: widget.onNext),
             ),
           ),
         ],
@@ -188,7 +189,7 @@ class _ResultOverlayState extends State<ResultOverlay> with TickerProviderStateM
           Positioned(
             left: s(16),
             top: s(16),
-            child: Text('Level $num', style: TextStyle(fontSize: s(12), color: const Color(0xFF444444))),
+            child: Text(tr('level', num), style: TextStyle(fontSize: s(12), color: const Color(0xFF444444))),
           ),
           if (_shownStars > 0)
             Positioned(
@@ -220,9 +221,9 @@ class _ResultOverlayState extends State<ResultOverlay> with TickerProviderStateM
 
   Widget _rewardPanel() {
     final (String title, Widget art) = switch (level.reward) {
-      Reward.wheel => ('Lucky Wheel', CustomPaint(size: Size.square(s(64)), painter: _MiniWheel())),
-      Reward.draw => ('Lucky Draw', _miniCards()),
-      Reward.chest => ('Reward', CustomPaint(size: Size(s(80), s(64)), painter: ChestPainter(0))),
+      Reward.wheel => (tr('luckyWheel'), CustomPaint(size: Size.square(s(64)), painter: _MiniWheel())),
+      Reward.draw => (tr('luckyDraw'), _miniCards()),
+      Reward.chest => (tr('reward'), CustomPaint(size: Size(s(80), s(64)), painter: ChestPainter(0))),
       Reward.coins => (
           '',
           Column(mainAxisSize: MainAxisSize.min, children: [
@@ -243,21 +244,27 @@ class _ResultOverlayState extends State<ResultOverlay> with TickerProviderStateM
             ]),
             Text('+250', style: TextStyle(color: C.gold, fontSize: s(20))),
           ])),
-      Reward.skin => ('BONUS SKIN', _skinArt()),
+      Reward.skin => (tr('bonusSkin'), _skinArt()),
     };
     final isSkin = level.reward == Reward.skin;
     return Column(
       children: [
         SizedBox(height: s(14)),
         if (title.isNotEmpty)
-          Text(title, style: TextStyle(color: C.orangeText, fontSize: s(15))),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: s(8)),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(title, style: TextStyle(color: C.orangeText, fontSize: s(15))),
+            ),
+          ),
         Expanded(child: Center(child: art)),
         if (isSkin)
-          Text('Limit:24h', style: TextStyle(color: C.orangeText, fontSize: s(10))),
+          Text(tr('limit24h'), style: TextStyle(color: C.orangeText, fontSize: s(10))),
         SizedBox(height: s(4)),
         Opacity(
           opacity: _claimed ? 0.5 : 1,
-          child: Pill(isSkin ? 'CLAIM' : 'OPEN',
+          child: Pill(isSkin ? tr('claim') : tr('open'),
               color: C.blueBtn,
               width: 130,
               height: 30,

@@ -18,6 +18,7 @@ import 'hud.dart';
 import 'levels.dart';
 import 'scene.dart';
 import 'sim.dart';
+import '../core/l10n.dart';
 
 enum Tut { none, progress, retry, hint }
 
@@ -300,7 +301,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
   void _share() {
     Ads.I.skipNextResume();
-    Share.share("I am playing #LoveDots! Let's play together! Draw one line and bump the balls!");
+    Share.share(tr('shareText'));
   }
 
   @override
@@ -392,7 +393,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           top: s(52),
           child: IgnorePointer(
             child: Callout(
-                'The progress bar shows the usage of the ink, the less you use, the easier you can get 3 stars.',
+                tr('tutProgress'),
                 width: 300,
                 arrowX: 0.27),
           ),
@@ -401,14 +402,14 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           left: size.width - s(410),
           top: s(52),
           child: IgnorePointer(
-            child: Callout('You can click the Retry button to redo it.', width: 330, arrowX: 0.93, flip: true),
+            child: Callout(tr('tutRetry'), width: 330, arrowX: 0.93, flip: true),
           ),
         ),
       Tut.hint => Positioned(
           left: size.width - s(510),
           top: s(52),
           child: IgnorePointer(
-            child: Callout("If you fail to complete a level or you can't get 3 stars, tap the hint button!",
+            child: Callout(tr('tutHint'),
                 width: 320, arrowX: 0.86, flip: true),
           ),
         ),

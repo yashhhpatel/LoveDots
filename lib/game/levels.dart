@@ -75,6 +75,7 @@ class Level {
   final bool hintClosed;
   final Reward reward;
   final String? skinReward; // 'ball:<id>' or 'pen:<id>'
+  /// Translation key of a tip printed on the paper.
   final String? text;
   final Offset textPos;
 
@@ -241,7 +242,7 @@ final List<Level> handLevels = [
     pink: o(62.3, 21.8),
     hint: [o(32, 12), o(35, 12), o(35.2, 14)],
     reward: Reward.wheel,
-    text: 'Draw one line\nand bump the\nballs!',
+    text: 'tutDraw', // translation key
     textPos: o(42.7, 8.6),
   ),
   // 2 — diamond around the balls, hanging from a pin

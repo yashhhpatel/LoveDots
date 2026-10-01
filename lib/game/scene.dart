@@ -7,6 +7,7 @@ import '../art/backgrounds.dart';
 import '../art/characters.dart';
 import '../art/desk.dart';
 import '../art/palette.dart';
+import '../core/l10n.dart';
 import 'geometry.dart';
 import 'levels.dart';
 import 'sim.dart';
@@ -106,7 +107,7 @@ class ScenePainter extends CustomPainter {
     if (level.text != null) {
       final tp = TextPainter(
         text: TextSpan(
-            text: level.text,
+            text: tr(level.text!),
             style: const TextStyle(color: Color(0xFF333333), fontSize: 2.3, height: 1.2)),
         textDirection: TextDirection.ltr,
       )..layout();

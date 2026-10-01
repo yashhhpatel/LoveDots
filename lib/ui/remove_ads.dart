@@ -6,6 +6,7 @@ import '../art/palette.dart';
 import '../core/billing.dart';
 import '../core/save.dart';
 import 'widgets.dart';
+import '../core/l10n.dart';
 
 /// "Remove Ads" popup: 1 Month and Lifetime ads-free packages.
 class RemoveAdsDialog extends StatefulWidget {
@@ -47,7 +48,7 @@ class _RemoveAdsDialogState extends State<RemoveAdsDialog> {
     return Material(
       color: Colors.transparent,
       child: PopupCard(
-        title: 'Remove Ads',
+        title: tr('removeAds'),
         width: 600,
         height: 360,
         onClose: () => Navigator.of(context).pop(),
@@ -57,8 +58,8 @@ class _RemoveAdsDialogState extends State<RemoveAdsDialog> {
             children: [
               Text(
                 Save.I.adsFree
-                    ? 'Ads are removed. Thank you for supporting Love Dots!'
-                    : 'Play without interruptions. Optional reward videos stay available.',
+                    ? tr('adsRemoved')
+                    : tr('adsPitch'),
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: s(14.5), color: const Color(0xFF666666)),
               ),
@@ -68,8 +69,8 @@ class _RemoveAdsDialogState extends State<RemoveAdsDialog> {
                   children: [
                     Expanded(
                       child: _Package(
-                        title: '1 Month Ads-Free',
-                        subtitle: 'Renews monthly. Cancel anytime in Google Play.',
+                        title: tr('month'),
+                        subtitle: tr('monthSub'),
                         price: Billing.I.priceOf(ProductIds.monthly),
                         icon: Icons.calendar_month_rounded,
                         color: C.blueBtn,
@@ -82,8 +83,8 @@ class _RemoveAdsDialogState extends State<RemoveAdsDialog> {
                     SizedBox(width: s(18)),
                     Expanded(
                       child: _Package(
-                        title: 'Lifetime Ads-Free',
-                        subtitle: 'Pay once. No ads, forever.',
+                        title: tr('lifetime'),
+                        subtitle: tr('lifetimeSub'),
                         price: Billing.I.priceOf(ProductIds.lifetime),
                         icon: Icons.all_inclusive_rounded,
                         color: C.pinkBtn,
@@ -102,7 +103,7 @@ class _RemoveAdsDialogState extends State<RemoveAdsDialog> {
                 onTap: Billing.I.restore,
                 child: Padding(
                   padding: EdgeInsets.all(s(6)),
-                  child: Text('Restore purchases',
+                  child: Text(tr('restore'),
                       style: TextStyle(
                           fontSize: s(14),
                           color: C.tealBar,
@@ -143,13 +144,13 @@ class _Package extends StatelessWidget {
   Widget build(BuildContext context) {
     final String label;
     if (owned) {
-      label = 'ACTIVE';
+      label = tr('active');
     } else if (coveredByOther) {
-      label = 'INCLUDED';
+      label = tr('included');
     } else if (state == BuyState.pending) {
-      label = 'PENDING…';
+      label = tr('pending');
     } else if (state == BuyState.buying) {
-      label = 'PLEASE WAIT…';
+      label = tr('pleaseWait');
     } else {
       label = price;
     }
@@ -196,7 +197,7 @@ class _Package extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: s(8), vertical: s(3)),
               decoration: BoxDecoration(color: C.yellowBtn, borderRadius: BorderRadius.circular(s(8))),
-              child: Text('BEST VALUE',
+              child: Text(tr('bestValue'),
                   style: TextStyle(fontSize: s(10.5), color: Colors.white, fontWeight: FontWeight.w700)),
             ),
           ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../art/characters.dart';
 import '../game/scene.dart';
 import 'widgets.dart';
+import '../core/l10n.dart';
 
 /// Brand splash followed by the "Loading" screen.
 class LoadingScreen extends StatefulWidget {
@@ -59,7 +60,7 @@ class _LoadingScreenState extends State<LoadingScreen> with SingleTickerProvider
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           CustomPaint(size: Size(s(150), s(110)), painter: _Logo()),
           SizedBox(height: s(26)),
-          Text('Loading', style: TextStyle(fontSize: s(17), color: const Color(0xFF333333))),
+          Text(tr('loading'), style: TextStyle(fontSize: s(17), color: const Color(0xFF333333))),
           SizedBox(height: s(14)),
           Container(
             width: s(278),
