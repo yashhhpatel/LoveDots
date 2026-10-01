@@ -46,6 +46,11 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <!-- Lets "Privacy" open the policy in a browser on Android 11+. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
         <!-- Lets "Contact us" find an email app on Android 11+. -->
         <intent>
             <action android:name="android.intent.action.SENDTO"/>

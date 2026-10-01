@@ -146,28 +146,47 @@ void showLeaderboard(BuildContext context) {
   );
 }
 
-void showPrivacy(BuildContext context) {
+const kPrivacyPolicyUrl =
+    'https://api.buildprivacypolicy.com/policy/c3fad6ce-15f4-4a7a-8bd2-fcf3f39b246e';
+
+Future<void> openPrivacyPolicy(BuildContext context) async {
+  Ads.I.skipNextResume();
+  var ok = false;
+  try {
+    ok = await launchUrl(Uri.parse(kPrivacyPolicyUrl), mode: LaunchMode.externalApplication);
+  } catch (_) {}
+  if (!ok) {
+    Ads.I.onResumeHandled();
+    if (context.mounted) showToast(context, 'Could not open the browser. Please try again.');
+  }
+}
+
+/// Opens the privacy policy. Players in regions where Google's consent form
+/// applies (EEA/UK) also get a way to change their ad consent.
+Future<void> showPrivacy(BuildContext context) async {
+  if (!await Ads.I.privacyOptionsRequired()) {
+    if (context.mounted) await openPrivacyPolicy(context);
+    return;
+  }
+  if (!context.mounted) return;
   showPopup(
     context,
     Material(
       color: Colors.transparent,
       child: PopupCard(
         title: 'Privacy',
-        width: 560,
-        height: 320,
+        width: 460,
+        height: 250,
         onClose: () => Navigator.of(context).pop(),
-        child: Padding(
-          padding: EdgeInsets.all(s(22)),
-          child: SingleChildScrollView(
-            child: Text(
-              'Love Dots stores your progress (levels, stars, coins, skins and settings) '
-              'only on this device. The game does not collect personal data, does not '
-              'use advertising identifiers and does not send any information to servers.\n\n'
-              'Sharing a level uses your device\'s share sheet; nothing is sent unless you '
-              'choose an app to share with.',
-              style: TextStyle(fontSize: s(15), color: const Color(0xFF555555), height: 1.4),
-            ),
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Pill('PRIVACY POLICY',
+                color: C.tealBar, width: 260, height: 40, font: 16, onTap: () => openPrivacyPolicy(context)),
+            SizedBox(height: s(16)),
+            Pill('AD PRIVACY SETTINGS',
+                color: C.blueBtn, width: 260, height: 40, font: 16, onTap: Ads.I.showPrivacyOptions),
+          ],
         ),
       ),
     ),
