@@ -63,7 +63,6 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     _setup();
     _ticker = createTicker(_tick)..start();
     Save.I.addListener(_saveChanged);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeTerms());
   }
 
   @override
@@ -102,60 +101,6 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     }
     _tutTimer = -1;
     if (Save.I.lastPlayed != li) Save.I.update(() => Save.I.lastPlayed = li);
-  }
-
-  void _maybeTerms() {
-    if (Save.I.termsAccepted || !mounted) return;
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: false,
-      barrierColor: Colors.black.withOpacity(0.35),
-      pageBuilder: (ctx, __, ___) => Center(
-        child: Material(
-          color: const Color(0xFF424242),
-          elevation: 8,
-          child: Container(
-            width: s(640),
-            padding: EdgeInsets.fromLTRB(s(28), s(24), s(28), s(12)),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text.rich(
-                  TextSpan(
-                    style: TextStyle(color: Colors.white, fontSize: s(21), height: 1.3),
-                    children: [
-                      const TextSpan(text: 'To use Love Dots you must agree to our '),
-                      TextSpan(
-                          text: 'Terms & Conditions',
-                          style: const TextStyle(fontWeight: FontWeight.w700, decoration: TextDecoration.underline)),
-                      const TextSpan(text: ' and affirm you have reviewed our '),
-                      TextSpan(
-                          text: 'Privacy Policy',
-                          style: const TextStyle(fontWeight: FontWeight.w700, decoration: TextDecoration.underline)),
-                    ],
-                  ),
-                ),
-                SizedBox(height: s(12)),
-                Text('Please press "Continue" if you choose to start using our app.',
-                    style: TextStyle(color: Colors.white, fontSize: s(17))),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Save.I.update(() => Save.I.termsAccepted = true);
-                      Navigator.of(ctx).pop();
-                    },
-                    child: Text('CONTINUE',
-                        style: TextStyle(color: const Color(0xFF4DD0C4), fontSize: s(17))),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   // ------------------------------------------------------------- loop
@@ -375,6 +320,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                 sound: Save.I.sound,
                 music: Save.I.music,
                 hintFree: hintFree,
+                hintDisabled: li <= 1,
                 onBack: widget.onLevels,
                 onSound: () {
                   Save.I.update(() => Save.I.sound = !Save.I.sound);

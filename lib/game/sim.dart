@@ -9,6 +9,14 @@ import 'levels.dart';
 const double kLineR = 0.42; // half thickness of the drawn ink line
 const double kGravity = 95;
 
+/// Tuning knobs (mutable so tests can sweep them).
+class Tune {
+  static double ballDensity = 0.5;
+  static double lineDensity = 3.0;
+  static double lineFriction = 0.7;
+  static double ballFriction = 0.5;
+}
+
 enum SimState { ready, drawing, running, won, failed }
 
 class _Tag {
@@ -81,7 +89,7 @@ class Sim extends ContactListener {
       angularDamping: 0.04,
     ));
     b.createFixture(FixtureDef(CircleShape()..radius = kBallR,
-        density: 0.5, friction: 0.5, restitution: 0.12));
+        density: Tune.ballDensity, friction: Tune.ballFriction, restitution: 0.12));
     return b;
   }
 
@@ -186,7 +194,7 @@ class Sim extends ContactListener {
       bullet: true,
       angularDamping: 0.05,
     ));
-    _addBar(body, pts, kLineR, false, 0.7, density: 3.0);
+    _addBar(body, pts, kLineR, false, Tune.lineFriction, density: Tune.lineDensity);
     line = body;
     _lineLocal = pts.map((e) => Vector2(e.dx, e.dy)).toList();
     blue.setType(BodyType.dynamic);

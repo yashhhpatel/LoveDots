@@ -13,7 +13,6 @@ class Save extends ChangeNotifier {
   int coins = 0;
   Map<int, int> stars = {}; // level index (0-based) -> best stars
   int lastPlayed = 0;
-  bool termsAccepted = false;
   bool sound = true;
   bool music = true;
   bool vibration = true;
@@ -38,7 +37,6 @@ class Save extends ChangeNotifier {
           .map((k, v) => MapEntry(int.parse(k), v as int));
     }
     lastPlayed = _p.getInt('lastPlayed') ?? 0;
-    termsAccepted = _p.getBool('terms') ?? false;
     sound = _p.getBool('sound') ?? true;
     music = _p.getBool('music') ?? true;
     vibration = _p.getBool('vibration') ?? true;
@@ -63,7 +61,6 @@ class Save extends ChangeNotifier {
     _p.setString(
         'stars', jsonEncode(stars.map((k, v) => MapEntry('$k', v))));
     _p.setInt('lastPlayed', lastPlayed);
-    _p.setBool('terms', termsAccepted);
     _p.setBool('sound', sound);
     _p.setBool('music', music);
     _p.setBool('vibration', vibration);

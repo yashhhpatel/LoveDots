@@ -10,6 +10,7 @@ class Hud extends StatelessWidget {
   final bool sound;
   final bool music;
   final bool hintFree;
+  final bool hintDisabled;
   final VoidCallback onBack, onSound, onMusic, onHint, onRetry;
 
   const Hud({
@@ -19,6 +20,7 @@ class Hud extends StatelessWidget {
     required this.sound,
     required this.music,
     required this.hintFree,
+    this.hintDisabled = false,
     required this.onBack,
     required this.onSound,
     required this.onMusic,
@@ -68,7 +70,9 @@ class Hud extends StatelessWidget {
           Positioned(
             right: s(77),
             top: s(10),
-            child: Tap(onTap: onHint, child: HintPill(free: hintFree)),
+            child: Tap(
+                onTap: hintDisabled ? null : onHint,
+                child: HintPill(free: hintFree, disabled: hintDisabled)),
           ),
           Positioned(right: s(21), top: s(8), child: RoundBtn(Icons.refresh_rounded, size: 38, onTap: onRetry)),
         ],
@@ -163,7 +167,8 @@ class InkMeter extends StatelessWidget {
 
 class HintPill extends StatelessWidget {
   final bool free;
-  const HintPill({super.key, required this.free});
+  final bool disabled; // tutorial levels show the hint by themselves
+  const HintPill({super.key, required this.free, this.disabled = false});
 
   @override
   Widget build(BuildContext context) {
@@ -177,9 +182,10 @@ class HintPill extends StatelessWidget {
             width: s(80),
             height: s(32),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E9BE0),
+              color: disabled ? const Color(0xFF8E8E8E) : const Color(0xFF1E9BE0),
               borderRadius: BorderRadius.circular(s(16)),
-              border: Border.all(color: const Color(0xFF136FA8), width: s(1.5)),
+              border: Border.all(
+                  color: disabled ? const Color(0xFF6E6E6E) : const Color(0xFF136FA8), width: s(1.5)),
             ),
             padding: EdgeInsets.only(left: s(4)),
             child: Row(
