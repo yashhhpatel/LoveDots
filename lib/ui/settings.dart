@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../art/palette.dart';
+import '../core/ads.dart';
 import '../core/audio.dart';
 import '../core/save.dart';
 import '../game/levels.dart';
@@ -36,9 +38,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
       }),
       (Icons.leaderboard_rounded, 'Leaderboard', true, () => showLeaderboard(context)),
       (Icons.question_mark_rounded, 'Help', true, () => showPopup(context, const HelpDialog())),
-      (Icons.mail_rounded, 'Contact us', true, () {
-        launchUrl(Uri.parse('mailto:support@lovedots.app?subject=Love%20Dots%20feedback'));
-      }),
+      (Icons.mail_rounded, 'Contact us', true, () => showContact(context)),
       (Icons.privacy_tip_rounded, 'Privacy', true, () => showPrivacy(context)),
       (Icons.star_rounded, 'English', true, () => _language(context)),
     ];
@@ -167,6 +167,74 @@ void showPrivacy(BuildContext context) {
               'choose an app to share with.',
               style: TextStyle(fontSize: s(15), color: const Color(0xFF555555), height: 1.4),
             ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+const kContactEmail = 'aakashmangukiya10@gmail.com';
+
+Future<void> openContactEmail(BuildContext context) async {
+  final uri = Uri(
+    scheme: 'mailto',
+    path: kContactEmail,
+    query: 'subject=${Uri.encodeComponent('Love Dots feedback')}',
+  );
+  Ads.I.skipNextResume();
+  var ok = false;
+  try {
+    ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+  } catch (_) {}
+  if (!ok) {
+    Ads.I.onResumeHandled();
+    await Clipboard.setData(const ClipboardData(text: kContactEmail));
+    if (context.mounted) showToast(context, 'No email app found. Email address copied.');
+  }
+}
+
+void showContact(BuildContext context) {
+  showPopup(
+    context,
+    Material(
+      color: Colors.transparent,
+      child: PopupCard(
+        title: 'Contact us',
+        width: 520,
+        height: 260,
+        onClose: () => Navigator.of(context).pop(),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: s(26)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Questions, ideas or found a bug? We would love to hear from you.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: s(15), color: const Color(0xFF666666))),
+              SizedBox(height: s(18)),
+              Tap(
+                onTap: () => openContactEmail(context),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: s(16), vertical: s(10)),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE3F3F2),
+                    borderRadius: BorderRadius.circular(s(24)),
+                  ),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(Icons.mail_rounded, color: C.tealBar, size: s(24)),
+                    SizedBox(width: s(10)),
+                    Text(kContactEmail,
+                        style: TextStyle(
+                            fontSize: s(17),
+                            color: C.tealBar,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                            decorationColor: C.tealBar)),
+                  ]),
+                ),
+              ),
+            ],
           ),
         ),
       ),

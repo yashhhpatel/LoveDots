@@ -4,6 +4,7 @@ import '../art/palette.dart';
 import '../core/save.dart';
 import '../game/geometry.dart';
 import '../game/levels.dart';
+import 'remove_ads.dart';
 import 'settings.dart';
 import 'shop.dart';
 import 'widgets.dart';
@@ -76,7 +77,7 @@ class _LevelsScreenState extends State<LevelsScreen> {
           ),
           Positioned(left: s(142), top: s(8), child: RoundBtn(Icons.settings_rounded, size: 38, color: Colors.white,
               onTap: () => showPopup(context, const SettingsDialog()))),
-          Positioned(left: s(203), top: s(8), child: Tap(onTap: () => _noAds(context), child: const _NoAdsIcon())),
+          Positioned(left: s(203), top: s(8), child: Tap(onTap: () => showPopup(context, const RemoveAdsDialog()), child: const _NoAdsIcon())),
           Positioned(
             top: s(12),
             left: 0,
@@ -148,25 +149,6 @@ class _LevelsScreenState extends State<LevelsScreen> {
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  void _noAds(BuildContext context) {
-    showPopup(
-      context,
-      Material(
-        color: Colors.transparent,
-        child: PopupCard(
-          title: 'No Ads',
-          width: 420,
-          height: 220,
-          onClose: () => Navigator.of(context).pop(),
-          child: Center(
-            child: Text('This version of Love Dots has no ads.',
-                style: TextStyle(fontSize: s(18), color: const Color(0xFF555555))),
-          ),
-        ),
       ),
     );
   }

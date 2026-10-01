@@ -25,6 +25,14 @@ class Save extends ChangeNotifier {
   Set<int> freeHintUsed = {};
   bool dailyChallenge = false;
 
+  /// Ads-free entitlements, re-synced from Google Play on every launch.
+  bool adsFreeLifetime = false;
+  bool adsFreeMonthly = false;
+
+  /// Levels completed since the last interstitial ad.
+  int levelsSinceAd = 0;
+  int launches = 0;
+
   /// Bonus-skin trials: skin id -> expiry epoch ms.
   Map<String, int> trials = {};
 
@@ -49,6 +57,11 @@ class Save extends ChangeNotifier {
     freeHintUsed =
         (_p.getStringList('freeHint') ?? []).map(int.parse).toSet();
     dailyChallenge = _p.getBool('daily') ?? false;
+    adsFreeLifetime = _p.getBool('adsFreeLifetime') ?? false;
+    adsFreeMonthly = _p.getBool('adsFreeMonthly') ?? false;
+    levelsSinceAd = _p.getInt('levelsSinceAd') ?? 0;
+    launches = (_p.getInt('launches') ?? 0) + 1;
+    _p.setInt('launches', launches);
     final t = _p.getString('trials');
     if (t != null) {
       trials = (jsonDecode(t) as Map<String, dynamic>)
@@ -73,6 +86,9 @@ class Save extends ChangeNotifier {
     _p.setStringList(
         'freeHint', freeHintUsed.map((e) => '$e').toList());
     _p.setBool('daily', dailyChallenge);
+    _p.setBool('adsFreeLifetime', adsFreeLifetime);
+    _p.setBool('adsFreeMonthly', adsFreeMonthly);
+    _p.setInt('levelsSinceAd', levelsSinceAd);
     _p.setString('trials', jsonEncode(trials));
   }
 
@@ -81,6 +97,8 @@ class Save extends ChangeNotifier {
     _persist();
     notifyListeners();
   }
+
+  bool get adsFree => adsFreeLifetime || adsFreeMonthly;
 
   int get totalStars => stars.values.fold(0, (a, b) => a + b);
 

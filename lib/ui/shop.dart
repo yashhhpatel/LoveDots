@@ -66,10 +66,10 @@ class _ShopDialogState extends State<ShopDialog> {
         ShopTab.bg => bgItems.length,
       };
 
-  (String id, int price, bool iap) _item(int i) => switch (tab) {
-        ShopTab.pen => (penItems[i].id, penItems[i].price, penItems[i].iap),
-        ShopTab.ball => (ballItems[i].id, ballItems[i].price, ballItems[i].iap),
-        ShopTab.bg => (bgItems[i].id, bgItems[i].price, bgItems[i].iap),
+  (String id, int price) _item(int i) => switch (tab) {
+        ShopTab.pen => (penItems[i].id, penItems[i].price),
+        ShopTab.ball => (ballItems[i].id, ballItems[i].price),
+        ShopTab.bg => (bgItems[i].id, bgItems[i].price),
       };
 
   bool _owned(String id) => switch (tab) {
@@ -204,7 +204,7 @@ class _ShopDialogState extends State<ShopDialog> {
   }
 
   Widget _preview(int i, bool center) {
-    final (id, _, _) = _item(i);
+    final (id, _) = _item(i);
     final owned = _owned(id);
     Widget art;
     switch (tab) {
@@ -249,7 +249,7 @@ class _ShopDialogState extends State<ShopDialog> {
   }
 
   Widget _button() {
-    final (id, price, iap) = _item(_page.clamp(0, _count - 1));
+    final (id, price) = _item(_page.clamp(0, _count - 1));
     if (_using(id)) {
       return Pill('USING', color: C.redBtn, width: 150, height: 34, font: 17, onTap: () {});
     }
@@ -266,15 +266,6 @@ class _ShopDialogState extends State<ShopDialog> {
             font: 14,
             icon: CoinIcon(size: s(22)),
             onTap: () => _buy(id, price)),
-        if (iap) ...[
-          SizedBox(height: s(4)),
-          Pill('BUY NOW \$0.99',
-              color: C.purpleBtn,
-              width: 150,
-              height: 24,
-              font: 12,
-              onTap: () => showToast(context, 'In-app purchases are not available in this build')),
-        ],
       ],
     );
   }

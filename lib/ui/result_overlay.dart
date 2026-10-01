@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../art/characters.dart';
 import '../art/palette.dart';
+import '../core/ads.dart';
 import '../core/audio.dart';
 import '../core/save.dart';
 import '../game/levels.dart';
@@ -68,6 +69,11 @@ class _ResultOverlayState extends State<ResultOverlay> with TickerProviderStateM
 
   void _openReward() {
     if (_claimed) return;
+    Ads.I.showRewarded(context, _grantReward);
+  }
+
+  void _grantReward() {
+    if (_claimed || !mounted) return;
     switch (level.reward) {
       case Reward.wheel:
         setState(() => _claimed = true);

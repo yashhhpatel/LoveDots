@@ -7,8 +7,7 @@ import 'palette.dart';
 class SkinItem {
   final String id;
   final int price;
-  final bool iap;
-  const SkinItem(this.id, this.price, {this.iap = false});
+  const SkinItem(this.id, this.price);
 }
 
 const ballItems = [
@@ -17,19 +16,19 @@ const ballItems = [
   SkinItem('ninja', 1000),
   SkinItem('ladybug', 2000),
   SkinItem('cat', 2000),
-  SkinItem('crown', 4000, iap: true),
+  SkinItem('crown', 4000),
   SkinItem('glasses', 2000),
   SkinItem('bunny', 4000),
-  SkinItem('devil', 4000, iap: true),
+  SkinItem('devil', 4000),
 ];
 
 const penItems = [
   SkinItem('classic', 0),
   SkinItem('heart', 1000),
-  SkinItem('rose', 4000, iap: true),
+  SkinItem('rose', 4000),
   SkinItem('bear', 2000),
   SkinItem('reindeer', 2000),
-  SkinItem('candy', 4000, iap: true),
+  SkinItem('candy', 4000),
   SkinItem('snowman', 4000),
 ];
 

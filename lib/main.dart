@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'core/ads.dart';
 import 'core/audio.dart';
+import 'core/billing.dart';
 import 'core/save.dart';
 import 'game/game_screen.dart';
 import 'game/levels.dart';
@@ -16,6 +18,8 @@ Future<void> main() async {
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   await Save.I.load();
   Audio.I.init();
+  Ads.I.init();
+  Billing.I.init();
   runApp(const LoveDotsApp());
 }
 
@@ -63,7 +67,10 @@ class _RootState extends State<Root> with WidgetsBindingObserver {
     if (state == AppLifecycleState.paused) {
       Audio.I.pauseAll();
     } else if (state == AppLifecycleState.resumed) {
-      Audio.I.refreshMusic();
+      if (!Ads.I.showingFullScreen) Audio.I.refreshMusic();
+      if (screen != Screen.loading) Ads.I.onResume();
+      // Picks up subscription renewals/expiry and purchases made elsewhere.
+      Billing.I.refresh();
     }
   }
 
@@ -82,7 +89,8 @@ class _RootState extends State<Root> with WidgetsBindingObserver {
     final Widget child = switch (screen) {
       Screen.loading => LoadingScreen(
           key: const ValueKey('loading'),
-          onDone: () => _play(Save.I.lastPlayed.clamp(0, levels.length - 1)),
+          onDone: () => Ads.I.showAppOpenOnStart(
+              () => _play(Save.I.lastPlayed.clamp(0, levels.length - 1))),
         ),
       Screen.game => GameScreen(
           key: ValueKey('game$gameKey'),

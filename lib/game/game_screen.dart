@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../art/desk.dart';
+import '../core/ads.dart';
 import '../core/audio.dart';
 import '../core/save.dart';
 import '../ui/result_overlay.dart';
@@ -231,6 +232,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       final prev = Save.I.stars[li] ?? 0;
       Save.I.stars[li] = math.max(prev, stars);
       Save.I.coins += coins;
+      Save.I.levelsSinceAd++;
       if (li == kDailyChallengeLevel) Save.I.dailyChallenge = true;
     });
     if (!mounted) return;
@@ -253,7 +255,11 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     });
   }
 
-  Future<void> _next() async {
+  /// NEXT: every 3rd completed level shows an interstitial first.
+  void _next() => Ads.I.maybeShowInterstitial(_advance);
+
+  Future<void> _advance() async {
+    if (!mounted) return;
     if (li + 1 >= levels.length) {
       setState(() => _showResult = false);
       widget.onLevels();
@@ -274,7 +280,18 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
   void _hint() {
     final free = li < 6 && !Save.I.freeHintUsed.contains(li);
-    if (free) Save.I.update(() => Save.I.freeHintUsed.add(li));
+    if (free) {
+      Save.I.update(() => Save.I.freeHintUsed.add(li));
+      _revealHint();
+    } else if (scene.hintVisible) {
+      _revealHint(); // already paid for on this attempt: just replay it
+    } else {
+      Ads.I.showRewarded(context, _revealHint);
+    }
+  }
+
+  void _revealHint() {
+    if (!mounted) return;
     setState(() {
       scene.hintVisible = true;
       scene.hintPen = sim.state == SimState.ready ? 0 : -1;
@@ -282,6 +299,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   }
 
   void _share() {
+    Ads.I.skipNextResume();
     Share.share("I am playing #LoveDots! Let's play together! Draw one line and bump the balls!");
   }
 

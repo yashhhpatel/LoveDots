@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../art/characters.dart';
 import '../art/palette.dart';
+import '../core/ads.dart';
 import '../core/audio.dart';
 import '../core/save.dart';
 import 'widgets.dart';
@@ -235,10 +236,11 @@ class _LuckyWheelState extends State<LuckyWheel> with TickerProviderStateMixin {
                     height: 40,
                     font: 18,
                     icon: const VideoBadge(size: 20),
-                    onTap: () {
-                      _spunAgain = true;
-                      _go();
-                    }),
+                    onTap: () => Ads.I.showRewarded(context, () {
+                          if (!mounted || _spunAgain) return;
+                          _spunAgain = true;
+                          _go();
+                        })),
             ]
           : const [],
       child: SizedBox(

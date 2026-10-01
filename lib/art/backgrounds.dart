@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 class BgItem {
   final String id;
   final int price;
-  final bool iap;
-  const BgItem(this.id, this.price, {this.iap = false});
+  const BgItem(this.id, this.price);
 }
 
 const bgItems = [
@@ -19,7 +18,7 @@ const bgItems = [
   BgItem('farm', 2000),
   BgItem('egypt', 4000),
   BgItem('temple', 4000),
-  BgItem('christmas', 4000, iap: true),
+  BgItem('christmas', 4000),
 ];
 
 /// Paints a paper background into [r] (screen space).
