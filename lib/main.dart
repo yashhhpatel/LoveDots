@@ -17,6 +17,7 @@ Future<void> main() async {
       [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   await Save.I.load();
+  loadGeneratedLevels(await rootBundle.loadString(kGeneratedLevelsAsset));
   Audio.I.init();
   Ads.I.init();
   Billing.I.init();

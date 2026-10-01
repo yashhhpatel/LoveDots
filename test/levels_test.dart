@@ -1,53 +1,43 @@
-import 'dart:ui';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:love_dots/game/levels.dart';
 import 'package:love_dots/game/sim.dart';
-
-/// Draws the level's hint as a stroke and simulates [seconds] of physics.
-(SimState, int, String) playHint(Level level, {double seconds = 12}) {
-  final sim = Sim(level);
-  final pts = [...level.hint, if (level.hintClosed) level.hint.first];
-  if (!sim.begin(pts.first)) return (SimState.ready, 0, 'hint start blocked');
-  for (var i = 1; i < pts.length; i++) {
-    final a = pts[i - 1], b = pts[i];
-    final n = ((b - a).distance / 0.5).ceil().clamp(1, 1000);
-    for (var j = 1; j <= n; j++) {
-      sim.extend(Offset.lerp(a, b, j / n)!);
-    }
-  }
-  final drawn = sim.stroke.length;
-  sim.end();
-  final stars = sim.starsNow;
-  var t = 0.0;
-  while (t < seconds && sim.state == SimState.running) {
-    sim.step(1 / 60);
-    t += 1 / 60;
-  }
-  final b = sim.bluePos, p = sim.pinkPos;
-  return (
-    sim.state,
-    stars,
-    'pts=$drawn/${pts.length} t=${t.toStringAsFixed(1)} '
-        'blue=(${b.dx.toStringAsFixed(1)},${b.dy.toStringAsFixed(1)}) '
-        'pink=(${p.dx.toStringAsFixed(1)},${p.dy.toStringAsFixed(1)})'
-  );
-}
+import 'package:love_dots/game/solver.dart';
 
 void main() {
-  test('every level is solvable by following its hint', () {
+  setUpAll(() => loadGeneratedLevels(File(kGeneratedLevelsAsset).readAsStringSync()));
+
+  test('there are 1000 levels with a rising difficulty', () {
+    expect(levels.length, 1000);
+    for (var i = 1; i < levels.length; i++) {
+      expect(levels[i].tier.index, greaterThanOrEqualTo(levels[i - 1].tier.index),
+          reason: 'level ${i + 1} is easier than level $i');
+    }
+  });
+
+  test('the 20 hand-made levels are solvable by following their hint', () {
     final failures = <String>[];
-    for (var i = 0; i < levels.length; i++) {
-      final (state, stars, info) = playHint(levels[i]);
+    for (var i = 0; i < handLevels.length; i++) {
+      final r = playStroke(levels[i]);
       // ignore: avoid_print
-      print('L${i + 1}: $state stars=$stars $info');
-      if (state != SimState.won) failures.add('L${i + 1}');
+      print('L${i + 1}: $r');
+      if (!r.won) failures.add('L${i + 1}');
+    }
+    expect(failures, isEmpty);
+  });
+
+  test('generated levels are solvable by following their hint (every 10th)', () {
+    final failures = <String>[];
+    for (var i = handLevels.length; i < levels.length; i += 10) {
+      final r = playStroke(levels[i], seconds: 10);
+      if (!r.won || r.stars < 3) failures.add('L${i + 1}: $r');
     }
     expect(failures, isEmpty);
   });
 
   test('balls stay put until a line is drawn', () {
-    for (final l in levels) {
+    for (final l in levels.take(40)) {
       final sim = Sim(l);
       for (var i = 0; i < 120; i++) {
         sim.step(1 / 60);

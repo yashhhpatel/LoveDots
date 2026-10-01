@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -36,7 +37,33 @@ class Geo {
       Geo._(GeoKind.bar, pts: pts, w: w, closed: closed);
   factory Geo.circle(double x, double y, double r) =>
       Geo._(GeoKind.circle, c: Offset(x, y), r: r);
+
+  Map<String, Object> toJson() => switch (kind) {
+        GeoKind.poly => {'t': 'p', 'p': _ptsJson(pts), if (!solid) 's': 0, if (white) 'w': 1},
+        GeoKind.bar => {'t': 'b', 'p': _ptsJson(pts), 'w': _r2(w), if (closed) 'c': 1},
+        GeoKind.circle => {'t': 'c', 'c': [_r2(c.dx), _r2(c.dy)], 'r': _r2(r)},
+      };
+
+  static Geo fromJson(Map<String, dynamic> j) {
+    switch (j['t']) {
+      case 'p':
+        return Geo.poly(_ptsFrom(j['p']), solid: j['s'] != 0, white: j['w'] == 1);
+      case 'b':
+        return Geo.bar(_ptsFrom(j['p']), (j['w'] as num).toDouble(), closed: j['c'] == 1);
+      default:
+        final c = j['c'] as List;
+        return Geo.circle((c[0] as num).toDouble(), (c[1] as num).toDouble(), (j['r'] as num).toDouble());
+    }
+  }
 }
+
+double _r2(double v) => (v * 100).roundToDouble() / 100;
+List<List<double>> _ptsJson(List<Offset> pts) => [for (final p in pts) [_r2(p.dx), _r2(p.dy)]];
+List<Offset> _ptsFrom(Object? j) => [
+      for (final p in j as List) Offset(((p as List)[0] as num).toDouble(), (p[1] as num).toDouble())
+    ];
+
+enum Tier { tutorial, easy, medium, hard, veryHard }
 
 enum Reward { wheel, draw, chest, coins, skin }
 
@@ -51,6 +78,10 @@ class Level {
   final String? text;
   final Offset textPos;
 
+  /// Ink capacity as a multiple of the hint length.
+  final double inkFactor;
+  final Tier tier;
+
   const Level({
     required this.geos,
     required this.blue,
@@ -61,7 +92,36 @@ class Level {
     this.skinReward,
     this.text,
     this.textPos = Offset.zero,
+    this.inkFactor = 4.0,
+    this.tier = Tier.tutorial,
   });
+
+  Map<String, Object> toJson() => {
+        'g': [for (final g in geos) g.toJson()],
+        'b': [_r2(blue.dx), _r2(blue.dy)],
+        'k': [_r2(pink.dx), _r2(pink.dy)],
+        'h': _ptsJson(hint),
+        if (hintClosed) 'hc': 1,
+        'r': reward.name,
+        if (skinReward != null) 's': skinReward!,
+        'f': _r2(inkFactor),
+        'd': tier.index,
+      };
+
+  static Level fromJson(Map<String, dynamic> j) {
+    Offset pt(Object? v) => Offset(((v as List)[0] as num).toDouble(), (v[1] as num).toDouble());
+    return Level(
+      geos: [for (final g in j['g'] as List) Geo.fromJson(g as Map<String, dynamic>)],
+      blue: pt(j['b']),
+      pink: pt(j['k']),
+      hint: _ptsFrom(j['h']),
+      hintClosed: j['hc'] == 1,
+      reward: Reward.values.byName(j['r'] as String),
+      skinReward: j['s'] as String?,
+      inkFactor: (j['f'] as num).toDouble(),
+      tier: Tier.values[j['d'] as int],
+    );
+  }
 
   double get hintLength {
     var l = 0.0;
@@ -73,7 +133,7 @@ class Level {
   }
 
   /// Ink capacity: following the hint leaves enough ink for three stars.
-  double get ink => math.max(60, hintLength * 4.0);
+  double get ink => math.max(60, hintLength * inkFactor);
 }
 
 Offset o(double x, double y) => Offset(x, y);
@@ -168,7 +228,8 @@ List<Offset> _waves() {
 List<Offset> _mirror(List<Offset> p) =>
     p.map((e) => Offset(kPaperW - e.dx, e.dy)).toList();
 
-final List<Level> levels = [
+/// Levels 1-20, transcribed from the reference video.
+final List<Level> handLevels = [
   // 1 — tutorial: platform over a bowl
   Level(
     geos: [
@@ -466,3 +527,16 @@ final List<Level> levels = [
 
 /// Reward that the result screen headline uses for daily challenge.
 const int kDailyChallengeLevel = 15;
+
+/// Path of the generated levels 21-1000 (built by tool/gen_levels.dart).
+const kGeneratedLevelsAsset = 'assets/levels/generated.json';
+
+/// Every playable level: the 20 hand-made ones, then the generated ones.
+final List<Level> levels = [...handLevels];
+
+/// Appends the generated levels from their JSON text. Safe to call once.
+void loadGeneratedLevels(String json) {
+  if (levels.length > handLevels.length) return;
+  final list = jsonDecode(json) as List;
+  levels.addAll([for (final j in list) Level.fromJson(j as Map<String, dynamic>)]);
+}
